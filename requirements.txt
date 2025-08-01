@@ -1,0 +1,9 @@
+Faker
+selenium
+requests
+bs4
+pydantic
+pydantic_settings
+openai
+uiautomator2
+uiautodev

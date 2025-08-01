@@ -1,2 +1,8 @@
-*.xml
-*.iml
+__pycache__
+.vscode
+venv
+app.db
+config.json
+.env
+/.idea
+config.py

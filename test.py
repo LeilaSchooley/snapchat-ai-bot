@@ -24,7 +24,7 @@ def register_account(username, password, email):
         "password": password,
         "age": 19,
         "birthday": "1994-11-27"
-    }, headers={"User-agent": "Snapchat/4.1.01 (Nexus 4; Android 18; gzip)"})
+    }, headers={"User-agent": "Snapchat/12.1.01 (Nexus 4; Android 18; gzip)"})
 
     print("Step 1 Response:", reg.text)
     if not reg.json().get("logged"):
