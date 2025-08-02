@@ -38,6 +38,7 @@ def setup_device():
     device.screen_on()
     device.app_start(APP_PACKAGE, APP_ACTIVITY)
     time.sleep(3)
+    d(resourceId="android:id/button1").click()
     print("Snapchat app started")
 
 
@@ -125,10 +126,10 @@ def add_contacts():
                 break
 
             # Get current list of "Add" buttons using list-like API
-            add_buttons = device.xpath('//*[@resource-id="scu_search_action_button"]')
+            add_buttons = device(resourceId="add-friend-button")
             print(add_buttons)
             # Check if we have any add buttons at all
-            if add_buttons.count() == 0:
+            if add_buttons.count == 0:
                 print("No 'Add' buttons found.")
                 break
 
@@ -227,25 +228,23 @@ def get_conversation(contact_name: str) -> List[str]:
     conversation_lines = []
 
     # Look for message containers
-    message_containers = [
-        device(resourceId="com.snapchat.android:id/message_content"),
-        device(className="android.widget.TextView"),
-    ]
 
-    for container in message_containers:
-        if container.exists:
-            messages = container.all()
-            for msg in messages:
-                try:
-                    text = msg.get_text()
-                    if text and text not in IGNORED_MESSAGES:
-                        conversation_lines.append(text)
-                except Exception as e:
-                    print(f"Error getting message text: {e}")
-                    traceback.print_exc()
-                    continue
+    message_selector = device(resourceId="com.snapchat.android:id/0_resource_name_obfuscated")
 
-    return conversation_lines[-10:]  # Return last 10 messages
+
+    if message_selector.exists:
+
+        for msg in message_selector:
+            try:
+                text = msg.get_text()
+                if text and text not in IGNORED_MESSAGES:
+                    conversation_lines.append(text)
+            except Exception as e:
+                print(f"Error getting message text: {e}")
+                traceback.print_exc()
+                continue
+
+        return conversation_lines[-10:]  # Return last 10 messages
 
 
 def parse_conversation(conversation_lines: List[str]) -> List[Dict[str, str]]:

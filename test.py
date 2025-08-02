@@ -1,49 +1,26 @@
-import requests
-import hashlib
-import time
+import traceback
 
-def request_token(auth_token, timestamp):
-    secret = "iEk21fuwZApXlz93750dmW22pw389dPwOk"
-    pattern = "0001110111101110001111010101111011010001001110011000110001000110"
-    first = hashlib.sha256((secret + auth_token).encode()).hexdigest()
-    second = hashlib.sha256((str(timestamp) + secret).encode()).hexdigest()
-    return ''.join([first[i] if c == '0' else second[i] for i, c in enumerate(pattern)])
+import uiautomator2 as u2
 
-def register_account(username, password, email):
-    base_url = "https://feelinsonice.appspot.com"
-    static_token = "m198sOkJEn37DjqZ32lpRu76xmw288xSQ9"
-    timestamp = int(time.time())
+d = u2.connect()
 
-    token = request_token(static_token, timestamp)
+#add_buttons = d(resourceId="add-friend-button")
+#print(add_buttons.info)
 
-    # Step 1: Register the email + password
-    reg = requests.post(f"{base_url}/bq/register", data={
-        "req_token": token,
-        "timestamp": timestamp,
-        "email": email,
-        "password": password,
-        "age": 19,
-        "birthday": "1994-11-27"
-    }, headers={"User-agent": "Snapchat/12.1.01 (Nexus 4; Android 18; gzip)"})
 
-    print("Step 1 Response:", reg.text)
-    if not reg.json().get("logged"):
-        return "Failed to register email"
+message_selector = d(resourceId="com.snapchat.android:id/0_resource_name_obfuscated")
+conversation_lines = []
+if message_selector.exists:
 
-    # Step 2: Attach username
-    token = request_token(static_token, timestamp)  # reuse same timestamp
-    regu = requests.post(f"{base_url}/ph/registeru", data={
-        "req_token": token,
-        "timestamp": timestamp,
-        "email": email,
-        "username": username
-    }, headers={"User-agent": "Snapchat/4.1.01 (Nexus 4; Android 18; gzip)"})
+    for msg in message_selector:
+        try:
+            text = msg.get_text()
 
-    print("Step 2 Response:", regu.text)
-    if not regu.json().get("logged"):
-        return "Failed to attach username"
+            conversation_lines.append(text)
+        except Exception as e:
+            print(f"Error getting message text: {e}")
+            traceback.print_exc()
+            continue
 
-    return "Account successfully registered!"
 
-# Example use
-print(register_account("testusername123", "testpassword", "you@example.com"))
+print(conversation_lines)
